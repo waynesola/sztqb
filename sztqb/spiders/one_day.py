@@ -10,7 +10,7 @@ class OneDay(scrapy.Spider):
     name = "oneday"
     allowed_domains = ["sznews.com"]
     start_urls = [
-        "http://sztqb.sznews.com/html/2017-03/06/node_642.htm"
+        "http://sztqb.sznews.com/"
     ]
 
     def parse(self, response):
@@ -32,14 +32,8 @@ class OneDay(scrapy.Spider):
                 if al.div.get_text() != u"广告":
                     item['title'] = al.div.get_text()
                     item['link'] = "http://sztqb.sznews.com/html/2017-03/06/" + al.get('href')
+                    item['publish'] = soup.find('table', id="logoTable"). \
+                        find('td', width="204", align="center", valign="top").get_text()
                     items.append(item)
-
-        # # one article
-        # item = SztqbItem()
-        # item['title'] = soup.head.title.get_text()
-        # item['link'] = response.url
-        # item['publish'] = soup.find('span', attrs={"class": "default"}).get_text()
-        # item['text'] = soup.find('founder-content').get_text()
-        # items.append(item)
 
         return items
