@@ -15,7 +15,7 @@ class AllArticles(scrapy.Spider):
         "http://sztqb.sznews.com"
     ]
 
-    # 爬取指定天数
+    # 爬取指定天数，通过range(n)指定天数
     def parse(self, response):
         # 方法一：使用list表示要爬虫的url
         # urls = ["http://sztqb.sznews.com/html/2017-03/07/node_642.htm",
@@ -39,7 +39,7 @@ class AllArticles(scrapy.Spider):
             url = "http://sztqb.sznews.com/html/" + c_ym + "/" + c_d + "/node_642.htm"
             yield scrapy.Request(url, callback=self.parse_item)
 
-    # 爬取当天所有文章
+    # 爬取当天所有非广告文章
     def parse_item(self, response):
         data = response.body
         soup = BeautifulSoup(data, "html5lib")
@@ -66,7 +66,7 @@ class AllArticles(scrapy.Spider):
                     request_article.meta['item'] = item
                     yield request_article
 
-    # 爬取某篇文章正文
+    # 爬取某篇文章正文内容
     def parse_article(self, response):
         item = response.meta['item']
         data = response.body
