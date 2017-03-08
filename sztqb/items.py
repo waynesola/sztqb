@@ -13,5 +13,5 @@ class SztqbItem(scrapy.Item):
     title = scrapy.Field()
     publish = scrapy.Field()
     link = scrapy.Field()
-    # text = scrapy.Field()
+    text = scrapy.Field()
     pass

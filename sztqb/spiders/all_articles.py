@@ -8,13 +8,14 @@ import arrow
 import urlparse
 
 
-class AllDays(scrapy.Spider):
-    name = "alldays"
+class AllArticles(scrapy.Spider):
+    name = "allarticles"
     allowed_domains = ["sznews.com"]
     start_urls = [
-        "http://sztqb.sznews.com/html/2017-03/07/node_642.htm"
+        "http://sztqb.sznews.com"
     ]
 
+    # 爬取指定天数
     def parse(self, response):
         # 方法一：使用list表示要爬虫的url
         # urls = ["http://sztqb.sznews.com/html/2017-03/07/node_642.htm",
@@ -30,7 +31,6 @@ class AllDays(scrapy.Spider):
         c_d = c_date.format('DD')
         url = "http://sztqb.sznews.com/html/" + c_ym + "/" + c_d + "/node_642.htm"
         yield url
-
         # crawl [count] days
         for count in range(5):
             c_date = c_date.replace(days=-1)
@@ -39,6 +39,7 @@ class AllDays(scrapy.Spider):
             url = "http://sztqb.sznews.com/html/" + c_ym + "/" + c_d + "/node_642.htm"
             yield scrapy.Request(url, callback=self.parse_item)
 
+    # 爬取当天所有文章
     def parse_item(self, response):
         data = response.body
         soup = BeautifulSoup(data, "html5lib")
@@ -49,7 +50,6 @@ class AllDays(scrapy.Spider):
                       border="0",
                       cellspacing="1",
                       cellpadding="0")
-
         for t in ts:
             # 找出所有<a>标签
             als = t.find('table', cellspacing="0", cellpadding="1", border="0").tbody.find_all('a')
@@ -58,8 +58,18 @@ class AllDays(scrapy.Spider):
                 if al.div.get_text() != u"广告":
                     item['title'] = al.div.get_text()
                     # 根据当前url（当天首页）和文章相对路径，补全绝对路径
-                    item['link'] = urlparse.urljoin(response.url, al.get('href'))
+                    link = urlparse.urljoin(response.url, al.get('href'))
+                    item['link'] = link
                     item['publish'] = soup.find('table', id="logoTable"). \
                         find('td', width="204", align="center", valign="top").get_text()
-                    yield item
+                    request_article = scrapy.Request(link, callback=self.parse_article)
+                    request_article.meta['item'] = item
+                    yield request_article
 
+    # 爬取某篇文章正文
+    def parse_article(self, response):
+        item = response.meta['item']
+        data = response.body
+        soup = BeautifulSoup(data, "html5lib")
+        item['text'] = soup.find('founder-content').get_text()
+        yield item
