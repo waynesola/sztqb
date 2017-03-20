@@ -31,6 +31,11 @@ DOWNLOAD_DELAY = 0.2
 # CONCURRENT_REQUESTS_PER_DOMAIN = 16
 # CONCURRENT_REQUESTS_PER_IP = 16
 
+# 设置Item Processor(即 Item Pipeline) 同时处理(每个response的)item的最大值。默认值为100。
+# CONCURRENT_ITEMS = 100
+
+
+
 # Disable cookies (enabled by default)
 COOKIES_ENABLED = False
 

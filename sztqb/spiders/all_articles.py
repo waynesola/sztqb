@@ -6,10 +6,11 @@ from bs4 import BeautifulSoup
 from sztqb.items import SztqbItem
 import arrow
 import urlparse
+import datetime
 
 
 class AllArticles(scrapy.Spider):
-    name = "allarticles"
+    name = "all"
     allowed_domains = ["sznews.com"]
     start_urls = [
         "http://sztqb.sznews.com"
@@ -17,25 +18,40 @@ class AllArticles(scrapy.Spider):
 
     # 爬取指定天数，通过range(n)指定天数
     def parse(self, response):
-        # 方法一：使用list表示要爬虫的url
+
+        # # 方法一：使用list表示要爬虫的url
         # urls = ["http://sztqb.sznews.com/html/2017-03/07/node_642.htm",
         #         "http://sztqb.sznews.com/html/2017-03/06/node_642.htm",
         #         "http://sztqb.sznews.com/html/2017-03/05/node_642.htm"]
         # for u in urls:
         #     yield scrapy.Request(u, callback=self.parse_item)
 
-        # 方法二：使用range()循环指定一定数量的url，并用arrow指定url中的日期
-        # crawl today
+        # # 方法二：使用range()循环指定一定数量的url，并用arrow指定url中的日期
+        # # crawl today
+        # c_date = arrow.now()
+        # c_ym = c_date.format('YYYY-MM')
+        # c_d = c_date.format('DD')
+        # url = "http://sztqb.sznews.com/html/" + c_ym + "/" + c_d + "/node_642.htm"
+        # yield url
+        # # crawl [count] days
+        # for count in range(2):
+        #     c_date = c_date.replace(days=-1)
+        #     c_ym = c_date.format('YYYY-MM')
+        #     c_d = c_date.format('DD')
+        #     url = "http://sztqb.sznews.com/html/" + c_ym + "/" + c_d + "/node_642.htm"
+        #     yield scrapy.Request(url, callback=self.parse_item)
+
+        # 方法三：用arrow指定日期区间
+        start = datetime.datetime(2017, 3, 01)
+        end = datetime.datetime(2017, 3, 19)
         c_date = arrow.now()
         c_ym = c_date.format('YYYY-MM')
         c_d = c_date.format('DD')
         url = "http://sztqb.sznews.com/html/" + c_ym + "/" + c_d + "/node_642.htm"
         yield url
-        # crawl [count] days
-        for count in range(5):
-            c_date = c_date.replace(days=-1)
-            c_ym = c_date.format('YYYY-MM')
-            c_d = c_date.format('DD')
+        for r in arrow.Arrow.range('day', start, end):
+            c_ym = r.format('YYYY-MM')
+            c_d = r.format('DD')
             url = "http://sztqb.sznews.com/html/" + c_ym + "/" + c_d + "/node_642.htm"
             yield scrapy.Request(url, callback=self.parse_item)
 
