@@ -4,49 +4,33 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
-import pymysql
-from sztqb import settings
-from sztqb.items import SztqbItem
-from scrapy import log
+
+import pymysql.cursors
+
+
+# 数据库链接
+def dbHandle():
+    connection = pymysql.connect(host='localhost',
+                                 user='root',
+                                 password='88888888',
+                                 db='sztqb_201703',  # db亦作database，即Schema
+                                 charset='utf8mb4')
+    return connection
 
 
 class SztqbPipeline(object):
     def process_item(self, item, spider):
-        if item.__class__ == SztqbItem:
-            try:
-                self.cursor.execute("""select * from mytable where music_url = %s""", item["music_url"])
-                ret = self.cursor.fetchone()
-                if ret:
-                    self.cursor.execute(
-                        """update music_douban set music_name = %s,music_alias = %s,music_singer = %s,
-                            music_time = %s,music_rating = %s,music_votes = %s,music_tags = %s,music_url = %s
-                            where music_url = %s""",
-                        (item['music_name'],
-                         item['music_alias'],
-                         item['music_singer'],
-                         item['music_time'],
-                         item['music_rating'],
-                         item['music_votes'],
-                         item['music_tags'],
-                         item['music_url'],
-                         item['music_url']))
-                else:
-                    self.cursor.execute(
-                        """insert into music_douban(music_name,music_alias,music_singer,music_time,music_rating,
-                          music_votes,music_tags,music_url)
-                          value (%s,%s,%s,%s,%s,%s,%s,%s)""",
-                        (item['music_name'],
-                         item['music_alias'],
-                         item['music_singer'],
-                         item['music_time'],
-                         item['music_rating'],
-                         item['music_votes'],
-                         item['music_tags'],
-                         item['music_url']))
-                self.connect.commit()
-            except Exception as error:
-                log(error)
-            return item
+        dbObject = dbHandle()
+        cursor = dbObject.cursor()
+        # 注意此处sql语句无需添加id，因为item并没有id；数据库的id会自增长；Table名为mytable
+        sql = "insert into sztqb_201703.mytable (title,publish,link,text) values (%s,%s,%s,%s)"
 
-        else:
-            return item
+        try:
+            cursor.execute(sql,
+                           (item['title'], item['publish'], item['link'], item['text']))
+            dbObject.commit()
+
+        finally:
+            dbObject.close()
+
+        return item
