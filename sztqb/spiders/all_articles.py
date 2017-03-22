@@ -42,8 +42,8 @@ class AllArticles(scrapy.Spider):
         #     yield scrapy.Request(url, callback=self.parse_item)
 
         # 方法三：用arrow指定日期区间
-        start = datetime.datetime(2017, 3, 19)
-        end = datetime.datetime(2017, 3, 20)
+        start = datetime.datetime(2016, 1, 1)
+        end = datetime.datetime(2017, 3, 22)
         c_date = arrow.now()
         c_ym = c_date.format('YYYY-MM')
         c_d = c_date.format('DD')
