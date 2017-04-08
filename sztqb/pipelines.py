@@ -24,8 +24,8 @@ class SztqbPipeline(object):
         if item.__class__ == SztqbItem:  # 此句非必要，在多个items时可能需要用到
             dbObject = dbHandle()
             cursor = dbObject.cursor()
-            # 注意此处sql语句无需添加id，因为item并没有id；数据库的id会自增长；Table名为from_20160101_to_20170322
-            sql = "insert into sztqb.from_20160101_to_20170322 (title,publish,link,text) values (%s,%s,%s,%s)"
+            # 注意此处sql语句无需添加id，因为item并没有id；数据库的id会自增长；Table名为from_20160101_to_20170406
+            sql = "insert into sztqb.from_20170301_to_20170331 (title,publish,link,text) values (%s,%s,%s,%s)"
 
             try:
                 cursor.execute(sql,
